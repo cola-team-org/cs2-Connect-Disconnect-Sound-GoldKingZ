@@ -232,7 +232,7 @@ public class MainPlugin : BasePlugin
 
         if (Configs.Instance.RemoveDefaultDisconnect == 2)
         {
-            if (victim.Connected == PlayerConnectedState.PlayerDisconnecting)
+            if (victim.Connected == PlayerConnectedState.Disconnected)
             {
                 info.DontBroadcast = true;
             }

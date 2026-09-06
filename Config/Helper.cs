@@ -220,7 +220,7 @@ public class Helper
     private static bool Permission_CheckFlags(CCSPlayerController player, string flags)
     {
         if (player == null || !player.IsValid ||
-            player.Connected != PlayerConnectedState.PlayerConnected ||
+            player.Connected != PlayerConnectedState.Connected ||
             player.IsBot || player.IsHLTV)
             return false;
 
@@ -250,7 +250,7 @@ public class Helper
     private static bool Permission_CheckGroups(CCSPlayerController player, string groups)
     {
         if (player == null || !player.IsValid ||
-            player.Connected != PlayerConnectedState.PlayerConnected ||
+            player.Connected != PlayerConnectedState.Connected ||
             player.IsBot || player.IsHLTV)
             return false;
 
@@ -274,7 +274,7 @@ public class Helper
             .Where(p =>
                 p != null &&
                 p.IsValid &&
-                p.Connected == PlayerConnectedState.PlayerConnected &&
+                p.Connected == PlayerConnectedState.Connected &&
                 (IncludeBots || !p.IsBot) &&
                 (IncludeHLTV || !p.IsHLTV) &&
                 ((IncludeCT && p.TeamNum == (byte)CsTeam.CounterTerrorist) ||
@@ -288,7 +288,7 @@ public class Helper
         return Utilities.GetPlayers().Count(p =>
             p != null &&
             p.IsValid &&
-            p.Connected == PlayerConnectedState.PlayerConnected &&
+            p.Connected == PlayerConnectedState.Connected &&
             (IncludeBots || !p.IsBot) &&
             (IncludeHLTV || !p.IsHLTV) &&
             ((IncludeCT && p.TeamNum == (byte)CsTeam.CounterTerrorist) ||
