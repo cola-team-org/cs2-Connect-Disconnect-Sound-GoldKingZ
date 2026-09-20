@@ -13,6 +13,7 @@ using CounterStrikeSharp.API.Core.Translations;
 using Newtonsoft.Json;
 using MaxMind.GeoIP2;
 using MaxMind.GeoIP2.Exceptions;
+using MaxMind.GeoIP2.Responses;
 using Newtonsoft.Json.Linq;
 using CnD_Sound.Config;
 using System.Globalization;
@@ -356,6 +357,53 @@ public class Helper
         File.WriteAllLines(jsonFilePath, lines);
     }
 
+    private static readonly object _geoReaderLock = new();
+    private static DatabaseReader? _geoReader;
+    private static bool _geoReaderFailed;
+
+    // One reader for the whole plugin lifetime (a new reader per lookup was the source of
+    // thousands of PlatformNotSupportedException / allocations per hour on Linux).
+    private static DatabaseReader? GetGeoReader()
+    {
+        var reader = _geoReader;
+        if (reader != null || _geoReaderFailed) return reader;
+
+        lock (_geoReaderLock)
+        {
+            if (_geoReader != null || _geoReaderFailed) return _geoReader;
+
+            var path = Path.GetFullPath(Path.Combine(MainPlugin.Instance.ModuleDirectory, "..", "..", "shared/GoldKingZ/GeoLocation/GeoLite2-City.mmdb"));
+            try
+            {
+                _geoReader = new DatabaseReader(path);
+            }
+            catch (Exception ex)
+            {
+                DebugMessage($"GeoIP memory-mapped open failed ({ex.GetType().Name}), falling back to in-memory reader");
+                try
+                {
+                    _geoReader = new DatabaseReader(path, MaxMind.Db.FileAccessMode.Memory);
+                }
+                catch (Exception ex2)
+                {
+                    _geoReaderFailed = true;
+                    DebugMessage($"GeoIP database could not be opened: {ex2.Message}", true);
+                }
+            }
+            return _geoReader;
+        }
+    }
+
+    public static void DisposeGeoReader()
+    {
+        lock (_geoReaderLock)
+        {
+            _geoReader?.Dispose();
+            _geoReader = null;
+            _geoReaderFailed = false;
+        }
+    }
+
     public static string GetGeoIsoCodeInfoAsync(string ipAddress)
     {
         if (!Configs.Instance.AutoSetPlayerLanguage || ipAddress == "127.0.0.1" || ipAddress.Contains("192.168."))
@@ -363,11 +411,10 @@ public class Helper
 
         try
         {
-            using var reader = new DatabaseReader(Path.GetFullPath(Path.Combine(MainPlugin.Instance.ModuleDirectory, "..", "..", "shared/GoldKingZ/GeoLocation/GeoLite2-City.mmdb")));
-
-            var response = reader.City(ipAddress);
-
-            return response.Country.IsoCode ?? "";
+            var reader = GetGeoReader();
+            if (reader != null && System.Net.IPAddress.TryParse(ipAddress, out var address) &&
+                reader.TryCity(address, out var response) && response != null)
+                return response.Country?.IsoCode ?? "";
         }
         catch (Exception ex)
         {
@@ -823,16 +870,17 @@ public class Helper
         {
             var task = Task.Run(() =>
             {
-                using var reader = new DatabaseReader(Path.GetFullPath(Path.Combine(MainPlugin.Instance.ModuleDirectory, "..", "..", "shared/GoldKingZ/GeoLocation/GeoLite2-City.mmdb")));
-                {
-                    var response = reader.City(ipAddress);
-                    return (
-                        Continent: response.Continent?.Name ?? MainPlugin.Instance.Localizer["unknown.continent"],
-                        Country: response.Country?.Name ?? MainPlugin.Instance.Localizer["unknown.long.country"],
-                        CountryCode: response.Country?.IsoCode ?? MainPlugin.Instance.Localizer["unknown.short.country"],
-                        City: response.City?.Name ?? MainPlugin.Instance.Localizer["unknown.city"]
-                    );
-                }
+                CityResponse? response = null;
+                var reader = GetGeoReader();
+                if (reader != null && System.Net.IPAddress.TryParse(ipAddress, out var address))
+                    reader.TryCity(address, out response);
+
+                return (
+                    Continent: response?.Continent?.Name ?? MainPlugin.Instance.Localizer["unknown.continent"],
+                    Country: response?.Country?.Name ?? MainPlugin.Instance.Localizer["unknown.long.country"],
+                    CountryCode: response?.Country?.IsoCode ?? MainPlugin.Instance.Localizer["unknown.short.country"],
+                    City: response?.City?.Name ?? MainPlugin.Instance.Localizer["unknown.city"]
+                );
             });
 
             if (await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(5))) == task)

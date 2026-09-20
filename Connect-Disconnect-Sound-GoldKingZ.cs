@@ -18,9 +18,9 @@ namespace CnD_Sound;
 public class MainPlugin : BasePlugin
 {
     public override string ModuleName => "Connect Disconnect Sound (Continent , Country , City , Message , Sounds , Logs , Discord)";
-    public override string ModuleVersion => "1.1.7";
+    public override string ModuleVersion => "1.1.8-cOLa";
     public override string ModuleAuthor => "Gold KingZ";
-    public override string ModuleDescription => "https://github.com/oqyh";
+    public override string ModuleDescription => "Connect Disconnect Info";
     public static MainPlugin Instance { get; set; } = new();
     public Globals g_Main = new();
     public readonly Game_UserMessages Game_UserMessages = new();
@@ -524,6 +524,7 @@ public class MainPlugin : BasePlugin
         {
             Helper.RemoveRegisterCommandsAndHooks();
             Helper.ClearVariables(true);
+            Helper.DisposeGeoReader();
 
         }
         catch (Exception ex)
