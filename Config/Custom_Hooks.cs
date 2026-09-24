@@ -39,7 +39,7 @@ public static class CustomHooks
             var hash = hook.GetParam<uint>(3);
             if (hash == 0x2D8464AF)
             {
-                hook.SetParam(3, 0xBD6054E9);
+                hook.SetParam<IntPtr>(3, (IntPtr)(long)0xBD6054E9); // CSSharp 375 (KHook): el param esta declarado como IntPtr, un uint lanza "Hook value is not numeric"
             }
         }
         else
@@ -47,7 +47,7 @@ public static class CustomHooks
             var hash = hook.GetParam<uint>(2);
             if (hash == 0x2D8464AF)
             {
-                hook.SetParam(2, 0xBD6054E9);
+                hook.SetParam<IntPtr>(2, (IntPtr)(long)0xBD6054E9); // CSSharp 375 (KHook): el param esta declarado como IntPtr, un uint lanza "Hook value is not numeric"
             }
         }
 
