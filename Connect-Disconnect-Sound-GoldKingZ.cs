@@ -18,7 +18,7 @@ namespace CnD_Sound;
 public class MainPlugin : BasePlugin
 {
     public override string ModuleName => "Connect Disconnect Sound (Continent , Country , City , Message , Sounds , Logs , Discord)";
-    public override string ModuleVersion => "1.1.8-cOLa";
+    public override string ModuleVersion => "1.1.8.1-cOLa";
     public override string ModuleAuthor => "Gold KingZ";
     public override string ModuleDescription => "Connect Disconnect Info";
     public static MainPlugin Instance { get; set; } = new();

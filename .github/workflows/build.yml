@@ -1,0 +1,59 @@
+name: Build and release
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build
+        run: dotnet build -c Release
+
+      - name: Read plugin version
+        id: version
+        run: |
+          VERSION=$(grep -oP 'ModuleVersion => "\K[^"]+' Connect-Disconnect-Sound-GoldKingZ.cs)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check if the release already exists
+        id: exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Package
+        if: steps.exists.outputs.exists == 'false'
+        run: |
+          cd bin/Release
+          zip -r ../../Connect-Disconnect-Sound-GoldKingZ-${{ steps.version.outputs.version }}.zip addons
+
+      - name: Release notes from CHANGELOG
+        if: steps.exists.outputs.exists == 'false'
+        run: |
+          awk -v v="${{ steps.version.outputs.version }}" '/^## /{p=($2==v)} p' CHANGELOG.md > notes.md
+
+      - name: Publish release
+        if: steps.exists.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          body_path: notes.md
+          files: Connect-Disconnect-Sound-GoldKingZ-${{ steps.version.outputs.version }}.zip
