@@ -31,7 +31,7 @@ public class Game_UserMessages
         }
 
 
-        if (Configs.Instance.Reload_CnD.Reload_CnD_CommandsInGame.ConvertCommands(true)?.Any(c => message.Equals(c.Trim(), StringComparison.OrdinalIgnoreCase)) == true)
+        if (Configs.Instance.Reload_CnD.Reload_CnD_CommandsInGame.MatchesChatCommand(message))
         {
             if (Configs.Instance.Reload_CnD.Reload_CnD_Flags.HasValidPermissionData() && !Helper.IsPlayerInGroupPermission(player, Configs.Instance.Reload_CnD.Reload_CnD_Flags))
             {
@@ -104,7 +104,7 @@ public class Game_UserMessages
 
         if (Configs.Instance.CnD_Sounds.CnDSounds > 1)
         {
-            if (Configs.Instance.CnD_Sounds.CnDSounds_CommandsInGame.ConvertCommands(true)?.Any(c => message.Equals(c.Trim(), StringComparison.OrdinalIgnoreCase)) == true)
+            if (Configs.Instance.CnD_Sounds.CnDSounds_CommandsInGame.MatchesChatCommand(message))
             {
                 if (Configs.Instance.CnD_Sounds.CnDSounds_Flags.HasValidPermissionData() && !Helper.IsPlayerInGroupPermission(player, Configs.Instance.CnD_Sounds.CnDSounds_Flags))
                 {
@@ -133,7 +133,7 @@ public class Game_UserMessages
 
         if (Configs.Instance.CnD_Messages.CnDMessages > 1)
         {
-            if (Configs.Instance.CnD_Messages.CnDMessages_CommandsInGame.ConvertCommands(true)?.Any(c => message.Equals(c.Trim(), StringComparison.OrdinalIgnoreCase)) == true)
+            if (Configs.Instance.CnD_Messages.CnDMessages_CommandsInGame.MatchesChatCommand(message))
             {
                 if (Configs.Instance.CnD_Messages.CnDMessages_Flags.HasValidPermissionData() && !Helper.IsPlayerInGroupPermission(player, Configs.Instance.CnD_Messages.CnDMessages_Flags))
                 {

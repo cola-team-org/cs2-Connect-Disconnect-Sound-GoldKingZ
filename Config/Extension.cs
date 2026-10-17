@@ -208,7 +208,36 @@ public static string ReplaceIgnoreCase(this string source, string oldValue, stri
         return (steam2, steam3, steam32, steam64);
     }
 
+    // The command lists come from the config: they are parsed once per (text, mode) instead of on every chat
+    // message (the chat hook parsed all three lists for every message anyone wrote).
+    private static readonly Dictionary<(string, bool), string[]?> _convertedCommands = new();
+
     public static string[]? ConvertCommands(this string input, bool EventPlayerChat = false)
+    {
+        if (input == null) return null;
+        if (!_convertedCommands.TryGetValue((input, EventPlayerChat), out var commands))
+        {
+            commands = ConvertCommandsUncached(input, EventPlayerChat);
+            _convertedCommands[(input, EventPlayerChat)] = commands;
+        }
+        return commands;
+    }
+
+    // Same check the chat hook did with ConvertCommands(true)?.Any(c => message.Equals(c.Trim(), ...)), without
+    // a lambda per message
+    public static bool MatchesChatCommand(this string input, string message)
+    {
+        var commands = input.ConvertCommands(true);
+        if (commands == null) return false;
+        foreach (var command in commands)
+        {
+            if (message.Equals(command.Trim(), StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+        return false;
+    }
+
+    private static string[]? ConvertCommandsUncached(string input, bool EventPlayerChat)
     {
         var parts = input.Split('|', StringSplitOptions.RemoveEmptyEntries)
             .Select(p => p.Split(':', 2))

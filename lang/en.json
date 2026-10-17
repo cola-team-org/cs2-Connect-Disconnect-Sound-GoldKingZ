@@ -1,16 +1,14 @@
 {
-	"PrintToChatToPlayer.ReloadPlugin.Not.Allowed": "{green}[CnD] {darkred}You Dont Have Permission",
-	"PrintToChatToPlayer.ReloadPlugin.Successfully": "{green}[CnD] {grey}Plugin Reloaded {lime}Successfully",
+	"PrintToChatToPlayer.ReloadPlugin.Not.Allowed": "{blue}[cOLa] {darkred}You dont have permission",
+	"PrintToChatToPlayer.ReloadPlugin.Successfully": "{blue}[cOLa] {grey}Plugin reloaded {lime}successfully",
 
-	"PrintToChatToPlayer.Toggle.Sounds.Not.Allowed": "{green}[CnD] {darkred}You Dont Have Permission",
-	"PrintToChatToPlayer.Toggle.Sounds.Enabled": "{green}[CnD] {grey}Sounds Is Now {lime}Enabled",
-	"PrintToChatToPlayer.Toggle.Sounds.Disabled": "{green}[CnD] {grey}Sounds Is Now {darkred}Disabled",
+	"PrintToChatToPlayer.Toggle.Sounds.Not.Allowed": "{blue}[cOLa] {darkred}You dont have permission",
+	"PrintToChatToPlayer.Toggle.Sounds.Enabled": "{blue}[cOLa] {default}Connect sounds is now {green}enabled{default}.",
+	"PrintToChatToPlayer.Toggle.Sounds.Disabled": "{blue}[cOLa] {default}Connect sounds is now {darkred}disabled{default}.",
 
-	"PrintToChatToPlayer.Toggle.Messages.Not.Allowed": "{green}[CnD] {darkred}You Dont Have Permission",
-	"PrintToChatToPlayer.Toggle.Messages.Enabled": "{green}[CnD] {grey}Messages Is Now {lime}Enabled",
-	"PrintToChatToPlayer.Toggle.Messages.Disabled": "{green}[CnD] {grey}Messages Is Now {darkred}Disabled",
-
-
+	"PrintToChatToPlayer.Toggle.Messages.Not.Allowed": "{blue}[cOLa] {darkred}You dont have permission",
+	"PrintToChatToPlayer.Toggle.Messages.Enabled": "{blue}[cOLa] {default}Connect messages is now {green}enabled{default}.",
+	"PrintToChatToPlayer.Toggle.Messages.Disabled": "{blue}[cOLa] {default}Connect messages is now {darkred}disabled{default}.",
 
 	"invalid.steamid": "InvalidSteamID",
 	"invalid.ipadress": "Local Host",
@@ -20,5 +18,4 @@
 	"unknown.short.country": "Local Host",
 	"unknown.city": "Local Host",
 	"unknown.reason": "Unknown Reason"
-
 }

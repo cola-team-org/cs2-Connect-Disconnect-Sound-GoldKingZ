@@ -32,23 +32,16 @@ public static class CustomHooks
         Helper.DebugMessage("Hooks Removed Successfully");
     }
 
+    // This hook runs for every sound parameter the server sets, so keep it minimal: the OS (and with it the
+    // parameter index) is resolved once instead of on every call.
+    private static readonly int HashParamIndex = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? 3 : 2;
+
     public static HookResult CSoundOpGameSystem_StartSoundEventFunc_2_PreHook(DynamicHook hook)
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        var hash = hook.GetParam<uint>(HashParamIndex);
+        if (hash == 0x2D8464AF)
         {
-            var hash = hook.GetParam<uint>(3);
-            if (hash == 0x2D8464AF)
-            {
-                hook.SetParam<IntPtr>(3, (IntPtr)(long)0xBD6054E9); // CSSharp 375 (KHook): el param esta declarado como IntPtr, un uint lanza "Hook value is not numeric"
-            }
-        }
-        else
-        {
-            var hash = hook.GetParam<uint>(2);
-            if (hash == 0x2D8464AF)
-            {
-                hook.SetParam<IntPtr>(2, (IntPtr)(long)0xBD6054E9); // CSSharp 375 (KHook): el param esta declarado como IntPtr, un uint lanza "Hook value is not numeric"
-            }
+            hook.SetParam<IntPtr>(HashParamIndex, unchecked((IntPtr)0xBD6054E9L)); // CSSharp 375 (KHook): el param esta declarado como IntPtr, un uint lanza "Hook value is not numeric"
         }
 
         return HookResult.Continue;

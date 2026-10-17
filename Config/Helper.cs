@@ -268,21 +268,25 @@ public class Helper
             .Any(reqGroup => playerData.Groups.Contains(reqGroup, StringComparer.OrdinalIgnoreCase));
     }
 
+    // Player controllers only live in the player slots: GetPlayers walks those instead of every entity of the map
+    // (FindAllEntitiesByDesignerName looked at all of them, and built a wrapper for each match, on every call).
     public static List<CCSPlayerController> GetPlayersController(bool IncludeBots = false, bool IncludeHLTV = false, bool IncludeNone = true, bool IncludeSPEC = true, bool IncludeCT = true, bool IncludeT = true)
     {
-        return Utilities
-            .FindAllEntitiesByDesignerName<CCSPlayerController>("cs_player_controller")
-            .Where(p =>
-                p != null &&
-                p.IsValid &&
-                p.Connected == PlayerConnectedState.Connected &&
-                (IncludeBots || !p.IsBot) &&
-                (IncludeHLTV || !p.IsHLTV) &&
-                ((IncludeCT && p.TeamNum == (byte)CsTeam.CounterTerrorist) ||
-                (IncludeT && p.TeamNum == (byte)CsTeam.Terrorist) ||
-                (IncludeNone && p.TeamNum == (byte)CsTeam.None) ||
-                (IncludeSPEC && p.TeamNum == (byte)CsTeam.Spectator)))
-            .ToList();
+        var result = new List<CCSPlayerController>(64);
+        foreach (var p in Utilities.GetPlayers())
+        {
+            if (p == null || !p.IsValid || p.Connected != PlayerConnectedState.Connected) continue;
+            if (!IncludeBots && p.IsBot) continue;
+            if (!IncludeHLTV && p.IsHLTV) continue;
+
+            var team = p.TeamNum;
+            if ((IncludeCT && team == (byte)CsTeam.CounterTerrorist) ||
+                (IncludeT && team == (byte)CsTeam.Terrorist) ||
+                (IncludeNone && team == (byte)CsTeam.None) ||
+                (IncludeSPEC && team == (byte)CsTeam.Spectator))
+                result.Add(p);
+        }
+        return result;
     }
     public static int GetPlayersCount(bool IncludeBots = false, bool IncludeHLTV = false, bool IncludeSPEC = true, bool IncludeCT = true, bool IncludeT = true)
     {
