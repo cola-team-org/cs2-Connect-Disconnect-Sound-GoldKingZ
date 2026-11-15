@@ -60,7 +60,7 @@ public class Game_UserMessages
                         Helper.DeleteOldFiles(Fpath, "*" + ".txt", TimeSpan.FromDays(Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld));
                     }
 
-                    MainPlugin.Instance.AddTimer(3.0f, async () =>
+                    MainPlugin.Instance.AddTimer(3.0f, () => Helper.FireAndForget(async () =>
                     {
                         bool success = false;
                         string getip = Helper.GetServerIp();
@@ -93,7 +93,7 @@ public class Game_UserMessages
                         {
                             await MySqlDataManager.CreateTableIfNotExistsAsync();
                         }
-                    }, TimerFlags.STOP_ON_MAPCHANGE);
+                    }), TimerFlags.STOP_ON_MAPCHANGE);
                     
                     Helper.AdvancedPlayerPrintToChat(player, null!, MainPlugin.Instance.Localizer["PrintToChatToPlayer.ReloadPlugin.Successfully"]);
                 }
@@ -211,7 +211,7 @@ public class Game_UserMessages
                 Helper.DeleteOldFiles(Fpath, "*" + ".txt", TimeSpan.FromDays(Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld));
             }
 
-            MainPlugin.Instance.AddTimer(3.0f, async () =>
+            MainPlugin.Instance.AddTimer(3.0f, () => Helper.FireAndForget(async () =>
             {
                 bool success = false;
                 string getip = Helper.GetServerIp();
@@ -244,7 +244,7 @@ public class Game_UserMessages
                 {
                     await MySqlDataManager.CreateTableIfNotExistsAsync();
                 }
-            }, TimerFlags.STOP_ON_MAPCHANGE);
+            }), TimerFlags.STOP_ON_MAPCHANGE);
 
             Helper.AdvancedPlayerPrintToChat(player, info, MainPlugin.Instance.Localizer["PrintToChatToPlayer.ReloadPlugin.Successfully"]);
         }

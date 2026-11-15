@@ -497,7 +497,7 @@ public class Helper
             {
                 try
                 {
-                    await Server.NextFrameAsync(async () =>
+                    await Server.NextFrameAsync(() => Helper.FireAndForget(async () =>
                     {
                         if (!player.IsValid()) return;
 
@@ -506,7 +506,7 @@ public class Helper
                         {
                             UpdatePlayerData(player, cookieData);
                         }
-                    });
+                    }));
                 }
                 catch (Exception ex)
                 {
@@ -588,7 +588,7 @@ public class Helper
                     {
                         try
                         {
-                            await Server.NextFrameAsync(async () =>
+                            await Server.NextFrameAsync(() => Helper.FireAndForget(async () =>
                             {
                                 await Cookies.SaveToJsonFile(
                                 player_SteamID,
@@ -597,7 +597,7 @@ public class Helper
                                 DateTime.Now
                                 );
 
-                            });
+                            }));
                         }
                         catch (Exception ex)
                         {
@@ -609,7 +609,7 @@ public class Helper
                     {
                         try
                         {
-                            await Server.NextFrameAsync(async () =>
+                            await Server.NextFrameAsync(() => Helper.FireAndForget(async () =>
                             {
                                 await MySqlDataManager.SaveToMySqlAsync(new Globals_Static.PersonData
                                 {
@@ -619,7 +619,7 @@ public class Helper
                                     DateAndTime = DateTime.Now
                                 });
 
-                            });
+                            }));
                         }
                         catch (Exception ex)
                         {
@@ -857,6 +857,26 @@ public class Helper
             um.Recipients.Clear();
         }
     }
+    // cOLa: async lambdas handed to Server.NextFrameAsync / AddTimer are async void; an exception in them
+    // (e.g. a NullReferenceException once the player has left) has nowhere to go and .NET aborts the
+    // whole server. Run them as a Task and log the exception instead.
+    public static void FireAndForget(Func<Task> work)
+    {
+        _ = RunLogged(work);
+    }
+
+    private static async Task RunLogged(Func<Task> work)
+    {
+        try
+        {
+            await work();
+        }
+        catch (Exception ex)
+        {
+            DebugMessage($"async callback failed: {ex}", true);
+        }
+    }
+
     public static void DebugMessage(string message, bool important = false)
     {
         if (!Configs.Instance.EnableDebug && !important) return;

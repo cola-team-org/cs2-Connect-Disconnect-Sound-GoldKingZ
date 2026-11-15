@@ -18,7 +18,7 @@ namespace CnD_Sound;
 public class MainPlugin : BasePlugin
 {
     public override string ModuleName => "Connect Disconnect Sound (Continent , Country , City , Message , Sounds , Logs , Discord)";
-    public override string ModuleVersion => "1.1.8.2-cOLa";
+    public override string ModuleVersion => "1.1.8.3-cOLa";
     public override string ModuleAuthor => "Gold KingZ";
     public override string ModuleDescription => "Connect Disconnect Info";
     public static MainPlugin Instance { get; set; } = new();
@@ -57,7 +57,7 @@ public class MainPlugin : BasePlugin
                 Helper.DeleteOldFiles(Fpath, "*" + ".txt", TimeSpan.FromDays(Configs.Instance.Log_Locally_AutoDeleteLogsMoreThanXdaysOld));
             }
 
-            AddTimer(3.0f, async () =>
+            AddTimer(3.0f, () => Helper.FireAndForget(async () =>
             {
                 bool success = false;
                 string getip = Helper.GetServerIp();
@@ -90,7 +90,7 @@ public class MainPlugin : BasePlugin
                 {
                     await MySqlDataManager.CreateTableIfNotExistsAsync();
                 }
-            }, TimerFlags.STOP_ON_MAPCHANGE);
+            }), TimerFlags.STOP_ON_MAPCHANGE);
         }
     }
 
@@ -146,7 +146,7 @@ public class MainPlugin : BasePlugin
         }
 
         
-        AddTimer(3.0f, async () =>
+        AddTimer(3.0f, () => Helper.FireAndForget(async () =>
         {
             bool success = false;
             string getip = Helper.GetServerIp();
@@ -179,7 +179,7 @@ public class MainPlugin : BasePlugin
             {
                 await MySqlDataManager.CreateTableIfNotExistsAsync();
             }
-        }, TimerFlags.STOP_ON_MAPCHANGE);
+        }), TimerFlags.STOP_ON_MAPCHANGE);
         
     }
 
@@ -319,7 +319,7 @@ public class MainPlugin : BasePlugin
 
             if(!mutemessage)
             {
-                await Server.NextFrameAsync(async () =>
+                await Server.NextFrameAsync(() => Helper.FireAndForget(async () =>
                 {
                     if (!player.IsValid() || !g_Main.Player_Data.ContainsKey(player.Slot))return;
 
@@ -400,7 +400,7 @@ public class MainPlugin : BasePlugin
                             await File.AppendAllTextAsync(fullPath, logMessage + Environment.NewLine);
                         }
                     }
-                });
+                }));
 
                 if (Disconnect?!string.IsNullOrEmpty(Configs.Instance.Discord_Disconnect_WebHook):!string.IsNullOrEmpty(Configs.Instance.Discord_Connect_WebHook))
                 {
